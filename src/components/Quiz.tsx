@@ -1,38 +1,62 @@
 import {Question} from "./Question";
-import {useContext} from "react";
+import {useContext, useEffect} from "react";
 import {QuizContext} from "../contexts/quiz";
-
 
 
 export function Quiz(){
     const [quizState, dispatch] = useContext(QuizContext);
-    console.log('value', quizState);
+    const apiUrl =
+        "https://opentdb.com/api.php?amount=10&category=31&difficulty=easy&type=multiple&encode=url3986";
+
+    useEffect(() => {
+        if (quizState.questions.length > 0) {
+            return;
+        }
+        console.log("on initialize");
+
+        fetch(apiUrl)
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("data", data);
+                dispatch({type: "LOADED_QUESTIONS", payload: data.results});
+            });
+    }, [dispatch, quizState.questions.length]);
 
     return (
         <div className="quiz">
             {quizState.showResults && (
                 <div className="results">
-                    <div className="congratulations"></div>
+                    <div className="congratulations">Congratulations</div>
                     <div className="results-info">
-                        <div>Ответы на вопросы</div>
-                        <div>4 из 8</div>
-                        <div
-                            className="next-button"
-                            onClick={()=> dispatch({type: "Restart"})}
-                        >Начать заново</div>
+                        <div>You have completed the quiz.</div>
+                        <div>
+                            You've got {quizState.correctAnswersCount} of{" "}
+                            {quizState.questions.length}
+                        </div>
+                    </div>
+                    <div
+                        className="next-button"
+                        onClick={() => dispatch({ type: "RESTART" })}
+                    >
+                        Restart
                     </div>
                 </div>
             )}
-            {!quizState.showResults &&(<div>
-                <div className="score">Вопросы {quizState.currentQuestionIndex + 1}/{quizState.questions.length}</div>
-                <Question />
-                <div
-                    className="next-button"
-                    //экшен
-                    onClick={()=> dispatch({type: 'NEXT_QUESTION'})}
-                >
-                    Следующий вопрос</div>
-            </div>)};
+            {!quizState.showResults && quizState.questions.length > 0 && (
+                <div>
+                    <div className="score">
+                        Question {quizState.currentQuestionIndex + 1}/
+                        {quizState.questions.length}
+                    </div>
+                    <Question />
+                    <div
+                        className="next-button"
+                        onClick={() => dispatch({ type: "NEXT_QUESTION" })}
+                    >
+                        Next question
+                    </div>
+                </div>
+            )}
         </div>
-    )
+    );
 }
