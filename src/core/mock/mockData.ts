@@ -1,4 +1,4 @@
-const data = [
+const mockData = [
   {
     question: "What does CSS stand for?",
     incorrectAnswers: [
@@ -63,4 +63,4 @@ const data = [
   },
 ];
 
-export default data;
+export default mockData;
